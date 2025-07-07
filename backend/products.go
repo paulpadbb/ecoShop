@@ -65,6 +65,13 @@ var products = []*Product{
 // Handler replies with the products response to any request
 func Handler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	if r.Method == http.MethodOptions {
+		// Preflight request, return OK directly
+		w.WriteHeader(http.StatusOK)
+		return
+	}
 	//// TODO
 	//// Add code to convert the product variable declared above into a json
 	//// You can use the Marshal function of the json package
