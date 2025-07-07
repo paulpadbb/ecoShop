@@ -62,7 +62,7 @@ const App = () => {
   // and store them in the products state.
   React.useEffect(() => {
     const apiUrl = process.env.NODE_ENV === 'production' 
-      ? 'https://ecoshop-m9ed.onrender.com' 
+      ? 'https://ecoshop-m9ed.onrender.com/products' 
       : 'http://localhost:8080/products';
     
     console.log('Fetching from:', apiUrl);
