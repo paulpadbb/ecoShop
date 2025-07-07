@@ -1,0 +1,21 @@
+{
+  "name": "intern",
+  "version": "1.0.0",
+  "description": "E-commerce intern challenge",
+  "main": "index.js",
+  "scripts": {
+    "build": "cd frontend && npm install && npm run build",
+    "start": "cd frontend && npm start"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/your-username/intern-challenge.git"
+  },
+  "keywords": [
+    "react",
+    "go",
+    "e-commerce"
+  ],
+  "author": "",
+  "license": "ISC"
+}

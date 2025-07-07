@@ -1,8 +1,7 @@
-package main
+package handler
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 )
 
@@ -63,35 +62,37 @@ var products = []*Product{
 	},
 }
 
-// Handler replies with the products response to any request
+// Handler is the main serverless function handler
 func Handler(w http.ResponseWriter, r *http.Request) {
+	// Set CORS headers
 	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 
-	//// TODO
-	//// Add code to convert the product variable declared above into a json
-	//// You can use the Marshal function of the json package
-	//// Don't forget to use the ProductsResponse structure
-	//// Should start with "b, err :="
+	// Handle preflight requests
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
 
-	b, err := json.Marshal(ProductsResponse{Products: products})
+	// Only allow GET requests
+	if r.Method != "GET" {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Convert products to JSON
+	response := &ProductsResponse{Products: products}
+	b, err := json.Marshal(response)
 	if err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	_, err = w.Write(b)
 	if err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
-}
-
-func main() {
-	fmt.Println("Starting server at port 8080. URL: http://localhost:8080/")
-
-	//// TODO
-	//// Add code to start a local web server at port 8080 that handles all requests with Handler
-
-	http.HandleFunc("/products", Handler)
-	http.ListenAndServe(":8080", nil)
 }
