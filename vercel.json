@@ -1,0 +1,27 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "frontend/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "build"
+      }
+    },
+    {
+      "src": "api/products.go",
+      "use": "@vercel/go"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/products",
+      "dest": "/api/products"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/frontend/$1"
+    }
+  ],
+  "framework": "create-react-app"
+}

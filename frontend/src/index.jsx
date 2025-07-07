@@ -61,7 +61,11 @@ const App = () => {
   // Fetch products from the backend
   // and store them in the products state.
   React.useEffect(() => {
-    fetch("http://localhost:8080/products")
+    const apiUrl = process.env.NODE_ENV === 'production' 
+      ? '/api/products' 
+      : 'http://localhost:8080/products';
+    
+    fetch(apiUrl)
       .then((response) => response.json())
       .then((products) => {
         setProducts(products.products);
