@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Debug Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .response {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            white-space: pre-wrap;
+        }
+        .error {
+            background: #ffebee;
+            color: #c62828;
+        }
+        .success {
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .test-btn {
+            background: #007bff;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1>API Debug Test</h1>
+    
+    <div>
+        <button class="test-btn" onclick="testLocalAPI()">Test Local API (localhost:8080)</button>
+        <button class="test-btn" onclick="testProductionAPI()">Test Production API (/api/products)</button>
+    </div>
+
+    <div id="results"></div>
+
+    <script>
+        async function testAPI(url, label) {
+            const resultsDiv = document.getElementById('results');
+            const timestamp = new Date().toLocaleTimeString();
+            
+            try {
+                resultsDiv.innerHTML += `<div><strong>[${timestamp}] Testing ${label}:</strong></div>`;
+                resultsDiv.innerHTML += `<div>URL: ${url}</div>`;
+                
+                const response = await fetch(url);
+                
+                resultsDiv.innerHTML += `<div class="response">Status: ${response.status}</div>`;
+                resultsDiv.innerHTML += `<div class="response">Headers: ${JSON.stringify(Object.fromEntries(response.headers), null, 2)}</div>`;
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                resultsDiv.innerHTML += `<div class="response success">Response: ${JSON.stringify(data, null, 2)}</div>`;
+                
+            } catch (error) {
+                resultsDiv.innerHTML += `<div class="response error">Error: ${error.message}</div>`;
+            }
+            
+            resultsDiv.innerHTML += `<hr>`;
+        }
+        
+        function testLocalAPI() {
+            testAPI('http://localhost:8080/products', 'Local API');
+        }
+        
+        function testProductionAPI() {
+            testAPI('/api/products', 'Production API');
+        }
+        
+        // Auto-test production API on page load
+        window.onload = function() {
+            testProductionAPI();
+        };
+    </script>
+</body>
+</html> 

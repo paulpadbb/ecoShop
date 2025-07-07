@@ -8,8 +8,9 @@ Your project is now configured for Vercel deployment with the following changes:
 
 1. ✅ **API converted to serverless function** (`api/products.go`)
 2. ✅ **Frontend updated** to use production API endpoint
-3. ✅ **Vercel configuration** added (`vercel.json`)
-4. ✅ **Build script** added to package.json
+3. ✅ **Project structure** simplified for Vercel deployment
+4. ✅ **Vercel configuration** added (`vercel.json`)
+5. ✅ **Build script** added to package.json
 
 ## 📋 Deployment Steps
 
@@ -44,9 +45,9 @@ vercel --prod
 
 ### Vercel Configuration (`vercel.json`)
 
-- **Frontend**: React app served from `/frontend/build`
+- **Frontend**: React app built from root directory to `/build`
 - **API**: Go serverless function at `/api/products`
-- **Framework**: Auto-detected as Create React App
+- **Framework**: Create React App (auto-detected)
 
 ### API Endpoint
 
@@ -63,6 +64,16 @@ After deployment, test these endpoints:
 
 1. **Main App**: `https://your-app.vercel.app`
 2. **API**: `https://your-app.vercel.app/api/products`
+3. **Debug Tool**: Open `debug-api.html` in your browser to test the API directly
+
+### Debugging Steps
+
+If products don't appear:
+
+1. **Check Browser Console**: Open DevTools (F12) and look for error messages
+2. **Test API Directly**: Visit `https://your-app.vercel.app/api/products` in your browser
+3. **Use Debug Tool**: Open the `debug-api.html` file to test both local and production APIs
+4. **Check Network Tab**: In DevTools, see if the API request is being made and what the response is
 
 ## 📝 Notes
 
