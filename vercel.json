@@ -10,7 +10,10 @@
     },
     {
       "src": "api/products.go",
-      "use": "@vercel/go"
+      "use": "@vercel/go",
+      "config": {
+        "rootDir": "api"
+      }
     }
   ],
   "routes": [
