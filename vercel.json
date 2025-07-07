@@ -15,10 +15,6 @@
   ],
   "routes": [
     {
-      "src": "/api/products",
-      "dest": "/api/products"
-    },
-    {
       "src": "/(.*)",
       "dest": "/$1"
     }
