@@ -1,0 +1,17 @@
+node_modules
+npm-debug.log
+Dockerfile
+.dockerignore
+.git
+.gitignore
+README.md
+DEPLOYMENT.md
+debug-api.html
+go.mod
+api/
+backend/
+.vercel
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local 
