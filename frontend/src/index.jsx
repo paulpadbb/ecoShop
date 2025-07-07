@@ -65,24 +65,45 @@ const App = () => {
       ? '/api/products' 
       : 'http://localhost:8080/products';
     
+    console.log('Fetching from:', apiUrl);
+    console.log('Environment:', process.env.NODE_ENV);
+    
     fetch(apiUrl)
-      .then((response) => response.json())
+      .then((response) => {
+        console.log('Response status:', response.status);
+        console.log('Response headers:', response.headers);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
       .then((products) => {
-        setProducts(products.products);
+        console.log('API Response:', products);
+        
+        if (products && products.products) {
+          setProducts(products.products);
 
-        // Initialize availableProducts and cartProducts
-        const initialAvailableProducts = products.products.reduce(
-          (acc, curr) => {
-            return { ...acc, [curr.id]: curr.stock };
-          },
-          {}
-        );
-        const initialInCartProducts = products.products.reduce((acc, curr) => {
-          return { ...acc, [curr.id]: 0 };
-        }, {});
+          // Initialize availableProducts and cartProducts
+          const initialAvailableProducts = products.products.reduce(
+            (acc, curr) => {
+              return { ...acc, [curr.id]: curr.stock };
+            },
+            {}
+          );
+          const initialInCartProducts = products.products.reduce((acc, curr) => {
+            return { ...acc, [curr.id]: 0 };
+          }, {});
 
-        setAvailableProducts(initialAvailableProducts);
-        setInCartProducts(initialInCartProducts);
+          setAvailableProducts(initialAvailableProducts);
+          setInCartProducts(initialInCartProducts);
+        } else {
+          console.error('Invalid API response format:', products);
+        }
+      })
+      .catch((error) => {
+        console.error('Error fetching products:', error);
+        // You could set an error state here to show an error message to users
       });
   }, []);
 

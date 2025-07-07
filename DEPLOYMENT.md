@@ -63,6 +63,16 @@ After deployment, test these endpoints:
 
 1. **Main App**: `https://your-app.vercel.app`
 2. **API**: `https://your-app.vercel.app/api/products`
+3. **Debug Tool**: Open `debug-api.html` in your browser to test the API directly
+
+### Debugging Steps
+
+If products don't appear:
+
+1. **Check Browser Console**: Open DevTools (F12) and look for error messages
+2. **Test API Directly**: Visit `https://your-app.vercel.app/api/products` in your browser
+3. **Use Debug Tool**: Open the `debug-api.html` file to test both local and production APIs
+4. **Check Network Tab**: In DevTools, see if the API request is being made and what the response is
 
 ## 📝 Notes
 
