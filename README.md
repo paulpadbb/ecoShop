@@ -22,7 +22,7 @@ The style is handled through the Bootstrap library (see [Bootstrap docs](https:/
 
 ## How to run it
 
-### Backend
+### Backend zidane
 
 ⚠️ In order to run the backend you first need to complete the backend code. For that search for the `TODO` lines in the `products.go` file and write the missing lines. Don't worry you don't need to add many code lines.
 
