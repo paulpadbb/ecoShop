@@ -10,17 +10,10 @@
     },
     {
       "src": "api/products.go",
-      "use": "@vercel/go",
-      "config": {
-        "rootDir": "api"
-      }
+      "use": "@vercel/go"
     }
   ],
   "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
-    },
     {
       "src": "/manifest.json",
       "dest": "/manifest.json"
