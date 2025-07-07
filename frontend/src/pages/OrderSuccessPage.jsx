@@ -57,6 +57,35 @@ const OrderSuccessPage = () => {
               
               <div className="order-summary bg-light p-4 rounded mb-4">
                 <h5 className="mb-3">Order Summary</h5>
+                
+                {/* Order Items */}
+                {orderItems && orderItems.length > 0 && (
+                  <div className="mb-3">
+                    <h6>Items Ordered:</h6>
+                    {orderItems.map((item, index) => (
+                      <div key={index} className="d-flex justify-content-between mb-1">
+                        <span>{item.name}</span>
+                        <span>${item.price?.toFixed(2)}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Upsell Items */}
+                {upsellItems && upsellItems.length > 0 && (
+                  <div className="mb-3">
+                    <h6>Bonus Items:</h6>
+                    {upsellItems.map((item, index) => (
+                      <div key={index} className="d-flex justify-content-between mb-1">
+                        <span>{item.name}</span>
+                        <span>${item.price?.toFixed(2)}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                
+                <hr />
+                
                 <div className="d-flex justify-content-between mb-2">
                   <span>Order Total:</span>
                   <span className="fw-bold">${orderTotal?.toFixed(2)}</span>
