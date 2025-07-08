@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Purchase API</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .success {
+            color: green;
+            font-weight: bold;
+        }
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+        .response {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🛒 EcoShop Purchase API Test</h1>
+        
+        <div class="test-section">
+            <h2>📦 Get Products</h2>
+            <p>First, let's check what products are available:</p>
+            <button onclick="getProducts()">Get Products</button>
+            <div id="products-result" class="response"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>🛍️ Test Purchase</h2>
+            <p>Try purchasing some items:</p>
+            <button onclick="testPurchase()">Buy 2 Milk + 1 Soda</button>
+            <button onclick="testLargePurchase()">Buy 5 Bread + 3 Eggs</button>
+            <button onclick="testOutOfStock()">Try to Buy 100 Milk (should fail)</button>
+            <div id="purchase-result" class="response"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>🔄 Refresh Products</h2>
+            <p>After purchase, check updated stock:</p>
+            <button onclick="getProducts()">Refresh Products</button>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8080';
+        
+        async function getProducts() {
+            try {
+                const response = await fetch(`${API_BASE}/products`);
+                const data = await response.json();
+                
+                document.getElementById('products-result').innerHTML = 
+                    `<span class="success">✅ Products loaded successfully!</span>\n` +
+                    JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('products-result').innerHTML = 
+                    `<span class="error">❌ Error: ${error.message}</span>`;
+            }
+        }
+        
+        async function testPurchase() {
+            try {
+                const purchaseData = {
+                    product_quantity_purchased: {
+                        "SHOP-0011": 2,  // 2 Milk
+                        "SHOP-0012": 1   // 1 Soda
+                    }
+                };
+                
+                const response = await fetch(`${API_BASE}/purchase`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(purchaseData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    document.getElementById('purchase-result').innerHTML = 
+                        `<span class="success">✅ Purchase successful!</span>\n` +
+                        JSON.stringify(result, null, 2);
+                } else {
+                    document.getElementById('purchase-result').innerHTML = 
+                        `<span class="error">❌ Purchase failed: ${result.message}</span>\n` +
+                        JSON.stringify(result, null, 2);
+                }
+            } catch (error) {
+                document.getElementById('purchase-result').innerHTML = 
+                    `<span class="error">❌ Error: ${error.message}</span>`;
+            }
+        }
+        
+        async function testLargePurchase() {
+            try {
+                const purchaseData = {
+                    product_quantity_purchased: {
+                        "SHOP-0013": 5,  // 5 Bread
+                        "SHOP-0014": 3   // 3 Eggs
+                    }
+                };
+                
+                const response = await fetch(`${API_BASE}/purchase`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(purchaseData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    document.getElementById('purchase-result').innerHTML = 
+                        `<span class="success">✅ Large purchase successful!</span>\n` +
+                        JSON.stringify(result, null, 2);
+                } else {
+                    document.getElementById('purchase-result').innerHTML = 
+                        `<span class="error">❌ Large purchase failed: ${result.message}</span>\n` +
+                        JSON.stringify(result, null, 2);
+                }
+            } catch (error) {
+                document.getElementById('purchase-result').innerHTML = 
+                    `<span class="error">❌ Error: ${error.message}</span>`;
+            }
+        }
+        
+        async function testOutOfStock() {
+            try {
+                const purchaseData = {
+                    product_quantity_purchased: {
+                        "SHOP-0011": 100  // 100 Milk (should fail)
+                    }
+                };
+                
+                const response = await fetch(`${API_BASE}/purchase`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(purchaseData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    document.getElementById('purchase-result').innerHTML = 
+                        `<span class="success">✅ Purchase successful (unexpected!)</span>\n` +
+                        JSON.stringify(result, null, 2);
+                } else {
+                    document.getElementById('purchase-result').innerHTML = 
+                        `<span class="success">✅ Out of stock handling works!</span>\n` +
+                        `<span class="error">Expected error: ${result.message}</span>\n` +
+                        JSON.stringify(result, null, 2);
+                }
+            } catch (error) {
+                document.getElementById('purchase-result').innerHTML = 
+                    `<span class="error">❌ Error: ${error.message}</span>`;
+            }
+        }
+    </script>
+</body>
+</html> 
