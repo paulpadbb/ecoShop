@@ -9,6 +9,7 @@ import { OrderSuccessPage } from "./pages/OrderSuccessPage";
 import { FAQPage } from "./pages/FAQPage";
 import { AboutPage } from "./pages/AboutPage";
 import { ContactPage } from "./pages/ContactPage";
+import { AdminPage } from "./pages/AdminPage";
 
 const App = () => {
   const [products, setProducts] = React.useState([]);
@@ -218,6 +219,7 @@ const App = () => {
             <Route path="/faq" element={<FAQPage />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/contact" element={<ContactPage />} />
+            <Route path="/admin" element={<AdminPage />} />
             
             {/* Placeholder routes for future implementation */}
             <Route 

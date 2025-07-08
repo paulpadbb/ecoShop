@@ -31,6 +31,30 @@ type PurchaseResponse struct {
 	Message string `json:"message"`
 }
 
+// New admin-related structures
+type RefillRequest struct {
+	ProductID string `json:"product_id"`
+	Quantity  int    `json:"quantity"`
+}
+
+type RefillResponse struct {
+	Success bool   `json:"success"`
+	Message string `json:"message"`
+}
+
+type CreateProductRequest struct {
+	ID       string `json:"id"`
+	Name     string `json:"name"`
+	Price    int    `json:"price"`
+	Stock    int    `json:"stock"`
+	ImageURL string `json:"image_url"`
+}
+
+type CreateProductResponse struct {
+	Success bool   `json:"success"`
+	Message string `json:"message"`
+}
+
 func initDatabase() (*sql.DB, error) {
 	// Get the current file's directory
 	_, filename, _, _ := runtime.Caller(0)
@@ -127,6 +151,25 @@ func purchaseProducts(db *sql.DB, productQuantityPurchased map[string]int) error
 	}
 
 	return tx.Commit()
+}
+
+// New admin functions
+func refillProduct(db *sql.DB, productID string, quantity int) error {
+	_, err := db.Exec("UPDATE products SET stock = stock + ? WHERE id = ?", quantity, productID)
+	return err
+}
+
+func createProduct(db *sql.DB, product CreateProductRequest) error {
+	// Check if product ID already exists
+	var existingID string
+	err := db.QueryRow("SELECT id FROM products WHERE id = ?", product.ID).Scan(&existingID)
+	if err == nil {
+		return fmt.Errorf("product with ID %s already exists", product.ID)
+	}
+
+	_, err = db.Exec("INSERT INTO products (id, name, price, stock, image_url) VALUES (?, ?, ?, ?, ?)",
+		product.ID, product.Name, product.Price, product.Stock, product.ImageURL)
+	return err
 }
 
 // Handler replies with the products response to any request
@@ -226,9 +269,130 @@ func PurchaseHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
+// New admin handlers
+func AdminRefillHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	if r.Method != "POST" {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Parse the request body
+	var refillReq RefillRequest
+	err := json.NewDecoder(r.Body).Decode(&refillReq)
+	if err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	// Validate input
+	if refillReq.ProductID == "" || refillReq.Quantity <= 0 {
+		http.Error(w, "Invalid product ID or quantity", http.StatusBadRequest)
+		return
+	}
+
+	// Initialize database
+	db, err := initDatabase()
+	if err != nil {
+		http.Error(w, "Database initialization failed", http.StatusInternalServerError)
+		return
+	}
+	defer db.Close()
+
+	// Process the refill
+	err = refillProduct(db, refillReq.ProductID, refillReq.Quantity)
+	if err != nil {
+		response := RefillResponse{
+			Success: false,
+			Message: err.Error(),
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+
+	// Success response
+	response := RefillResponse{
+		Success: true,
+		Message: "Product refilled successfully",
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
+}
+
+func AdminCreateProductHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	if r.Method != "POST" {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Parse the request body
+	var createReq CreateProductRequest
+	err := json.NewDecoder(r.Body).Decode(&createReq)
+	if err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	// Validate input
+	if createReq.ID == "" || createReq.Name == "" || createReq.Price <= 0 || createReq.Stock < 0 || createReq.ImageURL == "" {
+		http.Error(w, "Invalid product data", http.StatusBadRequest)
+		return
+	}
+
+	// Initialize database
+	db, err := initDatabase()
+	if err != nil {
+		http.Error(w, "Database initialization failed", http.StatusInternalServerError)
+		return
+	}
+	defer db.Close()
+
+	// Create the product
+	err = createProduct(db, createReq)
+	if err != nil {
+		response := CreateProductResponse{
+			Success: false,
+			Message: err.Error(),
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+
+	// Success response
+	response := CreateProductResponse{
+		Success: true,
+		Message: "Product created successfully",
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
+}
+
 func main() {
 	fmt.Println("Starting server at port 8080. URL: http://localhost:8080/")
 	http.HandleFunc("/products", Handler)
 	http.HandleFunc("/purchase", PurchaseHandler)
+	http.HandleFunc("/admin/refill", AdminRefillHandler)
+	http.HandleFunc("/admin/create", AdminCreateProductHandler)
 	http.ListenAndServe(":8080", nil)
 }

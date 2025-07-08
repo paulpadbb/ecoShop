@@ -11,6 +11,7 @@ const Sidebar = ({ cartItemCount }) => {
     { path: '/about', icon: 'ℹ️', label: 'About', description: 'Our Story' },
     { path: '/faq', icon: '❓', label: 'FAQ', description: 'Help Center' },
     { path: '/contact', icon: '📞', label: 'Contact', description: 'Get in Touch' },
+    { path: '/admin', icon: '🛠️', label: 'Admin', description: 'Manage Products' },
     { path: '/checkout', icon: '🛒', label: 'Cart', description: 'Checkout', badge: cartItemCount }
   ];
 
