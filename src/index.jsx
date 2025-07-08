@@ -137,6 +137,38 @@ const App = () => {
     });
   };
 
+  // Clear cart and refresh products (for after purchase)
+  const clearCartAndRefreshProducts = () => {
+    const apiUrl = process.env.NODE_ENV === 'production' 
+      ? 'https://ecoshop-m9ed.onrender.com/products' 
+      : 'http://localhost:8080/products';
+    
+    fetch(apiUrl)
+      .then((response) => response.json())
+      .then((products) => {
+        if (products && products.products) {
+          setProducts(products.products);
+
+          // Reset availableProducts and clear cart
+          const updatedAvailableProducts = products.products.reduce(
+            (acc, curr) => {
+              return { ...acc, [curr.id]: curr.stock };
+            },
+            {}
+          );
+          const clearedCartProducts = products.products.reduce((acc, curr) => {
+            return { ...acc, [curr.id]: 0 };
+          }, {});
+
+          setAvailableProducts(updatedAvailableProducts);
+          setInCartProducts(clearedCartProducts);
+        }
+      })
+      .catch((error) => {
+        console.error('Error refreshing products:', error);
+      });
+  };
+
   return (
     <Router>
       <div className="App" style={{ display: 'flex', minHeight: '100vh' }}>
@@ -176,6 +208,7 @@ const App = () => {
                   products={products}
                   inCartProducts={inCartProducts}
                   onRemoveFromCart={onRemoveFromCart}
+                  clearCartAndRefreshProducts={clearCartAndRefreshProducts}
                 />
               } 
             />

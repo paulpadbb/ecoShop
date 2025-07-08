@@ -1,7 +1,9 @@
 import * as React from "react";
 import "./Cart.css";
+import { useNavigate } from "react-router-dom";
 
 const Cart = (props) => {
+  const navigate = useNavigate();
   // Calculate total price
   const totalPrice = props.products.reduce((total, product) => {
     const quantity = props.inCartProducts[product.id];
@@ -81,7 +83,7 @@ const Cart = (props) => {
             </table>
           </div>
           
-          <div className="cart-total">
+          <div onClick={() =>  navigate("/checkout")} className="cart-total">
             <span className="total-label">💵 Total:</span>
             <span className="total-amount">{totalPrice.toFixed(2)}</span>
           </div>

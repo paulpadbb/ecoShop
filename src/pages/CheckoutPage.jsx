@@ -2,7 +2,7 @@ import * as React from "react";
 import { useNavigate } from "react-router-dom";
 import "./CheckoutPage.css";
 
-const CheckoutPage = ({ products, inCartProducts, onRemoveFromCart, onUpdateQuantity }) => {
+const CheckoutPage = ({ products, inCartProducts, onRemoveFromCart, onUpdateQuantity, clearCartAndRefreshProducts }) => {
   const navigate = useNavigate();
   const [customerInfo, setCustomerInfo] = React.useState({
     firstName: '',
@@ -44,18 +44,55 @@ const CheckoutPage = ({ products, inCartProducts, onRemoveFromCart, onUpdateQuan
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    // Navigate to upsell page with order data
-    navigate('/upsell', { 
-      state: { 
-        orderTotal: total,
-        customerInfo,
-        orderItems: itemsInCart 
+
+    try {
+      // Prepare the purchase data
+      const purchaseData = {};
+      itemsInCart.forEach(product => {
+        purchaseData[product.id] = inCartProducts[product.id];
+      });
+
+      // API URL configuration
+      const apiUrl = process.env.NODE_ENV === 'production' 
+        ? 'https://ecoshop-m9ed.onrender.com/purchase' 
+        : 'http://localhost:8080/purchase';
+
+      // Make the purchase API call
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          product_quantity_purchased: purchaseData
+        })
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        // Purchase successful, clear cart and refresh products
+        clearCartAndRefreshProducts();
+        
+        // Navigate to success page
+        navigate('/upsell', { 
+          state: { 
+            orderTotal: total,
+            customerInfo,
+            orderItems: itemsInCart,
+            purchaseSuccess: true
+          }
+        });
+      } else {
+        // Purchase failed, show error message
+        alert(`Purchase failed: ${result.message}`);
+        setLoading(false);
       }
-    });
+    } catch (error) {
+      console.error('Purchase error:', error);
+      alert('Network error occurred. Please try again.');
+      setLoading(false);
+    }
   };
 
   if (itemsInCart.length === 0) {
